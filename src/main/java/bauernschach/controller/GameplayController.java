@@ -21,7 +21,7 @@ import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 
 public class GameplayController implements Observer {
-  private Bauernschach game;
+  private Bauernschach game = new Bauernschach();
 
   @FXML
   void initialize() {
@@ -58,7 +58,7 @@ public class GameplayController implements Observer {
     for (int actualRow = 0; actualRow < numRows; actualRow++) {
       for (int actualColumn = 0; actualColumn < numColums; actualColumn++) {
         ChessPiece currentPiece = gameState.getChessBoard().getPieceAt(Coordinate.of(actualRow, actualColumn));
-        if (currentPiece != null) {
+        if (currentPiece.getColor() != null) {
           System.out.println(currentPiece);
           //chessBoardGridPane.add(new Circle(25, Color.BLACK), actualRow, actualColumn);
         }
