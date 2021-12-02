@@ -61,11 +61,12 @@ public class GameplayController implements Observer {
             .getPieceAt(Coordinate.of(actualRow, actualColumn));
         if (currentPiece.getColor() != null) {
           System.out.println(currentPiece);
+          int id = currentPiece.getId();
           if (currentPiece.getColor() == Color.BLACK) {
-            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("black")),
+            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("black"), id),
                 actualColumn, actualRow);
           } else {
-            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("white")),
+            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("white"), id),
                 actualColumn, actualRow);
           }
         }
@@ -73,12 +74,13 @@ public class GameplayController implements Observer {
     }
   }
 
-  private Circle createNewClickableCircle(Paint paint) {
+  private Circle createNewClickableCircle(Paint paint, int id) {
     Circle actualCircle = new Circle(30, paint);
     actualCircle.setOnMouseClicked(e -> {
       selectedCircle = actualCircle;
       selectedCircle.setFill(Paint.valueOf("blue"));
-      System.out.println(selectedCircle);
+      game.selectPieceById(id);
+      System.out.println("Paint:" + paint.toString() + ", ID: " + id);
     });
     return actualCircle;
   }
