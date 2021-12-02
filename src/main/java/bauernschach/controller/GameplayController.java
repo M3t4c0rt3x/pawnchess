@@ -34,28 +34,14 @@ import javafx.stage.Stage;
 public class GameplayController implements Observer {
 
   private Bauernschach game = new Bauernschach();
-  private final ObjectProperty<Circle> selectedCircle = new SimpleObjectProperty<>();
-
-  private final ObjectProperty<Point2D> selectedLocation = new SimpleObjectProperty<>();
-
-  private static final PseudoClass SELECTED_P_C = PseudoClass.getPseudoClass("selected");
-
+  private Circle selectedCircle;
 
   @FXML
   private GridPane chessBoardGridPane;
 
   @FXML
   void initialize() {
-    selectedCircle.addListener((obs, oldSelection, newSelection) -> {
-      if (oldSelection != null) {
-        oldSelection.pseudoClassStateChanged(SELECTED_P_C, false);
-      }
-      if (newSelection != null) {
-        newSelection.pseudoClassStateChanged(SELECTED_P_C, true);
-      }
-    });
     displayCurrentBoard();
-    System.out.println(selectedCircle.asString());
   }
 
 
@@ -76,10 +62,10 @@ public class GameplayController implements Observer {
         if (currentPiece.getColor() != null) {
           System.out.println(currentPiece);
           if (currentPiece.getColor() == Color.BLACK) {
-            chessBoardGridPane.add(createNewClickableBlackCircle(actualColumn, actualRow),
+            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("black")),
                 actualColumn, actualRow);
           } else {
-            chessBoardGridPane.add(createNewClickableWhiteCircle(actualColumn, actualRow),
+            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("white")),
                 actualColumn, actualRow);
           }
         }
@@ -87,20 +73,12 @@ public class GameplayController implements Observer {
     }
   }
 
-  private Circle createNewClickableBlackCircle(int actualColumn, int actualRow) {
-    Circle actualCircle = new Circle(30, Paint.valueOf("black"));
-    actualCircle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-      selectedCircle.set(actualCircle);
-      selectedLocation.set(new Point2D(actualColumn, actualRow));
-    });
-    return actualCircle;
-  }
-
-  private Circle createNewClickableWhiteCircle(int actualColumn, int actualRow) {
-    Circle actualCircle = new Circle(30, Paint.valueOf("white"));
-    actualCircle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-      selectedCircle.set(actualCircle);
-      selectedLocation.set(new Point2D(actualColumn, actualRow));
+  private Circle createNewClickableCircle(Paint paint) {
+    Circle actualCircle = new Circle(30, paint);
+    actualCircle.setOnMouseClicked(e -> {
+      selectedCircle = actualCircle;
+      selectedCircle.setFill(Paint.valueOf("blue"));
+      System.out.println(selectedCircle);
     });
     return actualCircle;
   }
