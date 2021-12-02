@@ -1,0 +1,4 @@
+.welcome{
+  -fx-background-image: url("images/welcome_bg.jpg");
+  -fx-background-size: 100% 100%;
+}
