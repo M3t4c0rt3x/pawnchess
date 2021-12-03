@@ -6,41 +6,28 @@ import bauernschach.model.board.ChessBoard;
 import bauernschach.model.board.ChessPiece;
 import bauernschach.model.board.ChessPiece.Color;
 import bauernschach.model.board.Coordinate;
+import bauernschach.model.board.Move;
 import bauernschach.model.observable.Observer;
-import java.awt.ScrollPane;
-import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.util.List;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.css.PseudoClass;
-import javafx.event.ActionEvent;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Arc;
-import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 
 public class GameplayController implements Observer {
 
   private Bauernschach game = new Bauernschach();
   private Circle selectedCircle;
+  private String player;
 
   @FXML
   private GridPane chessBoardGridPane;
 
   @FXML
   void initialize() {
+    player = game.getGameState().getCurrentRound().toString();
+    System.out.println(player);
     displayCurrentBoard();
   }
 
@@ -63,10 +50,10 @@ public class GameplayController implements Observer {
           System.out.println(currentPiece);
           int id = currentPiece.getId();
           if (currentPiece.getColor() == Color.BLACK) {
-            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("black"), id),
+            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("BLACK"), id),
                 actualColumn, actualRow);
           } else {
-            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("white"), id),
+            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("WHITE"), id),
                 actualColumn, actualRow);
           }
         }
@@ -77,11 +64,23 @@ public class GameplayController implements Observer {
   private Circle createNewClickableCircle(Paint paint, int id) {
     Circle actualCircle = new Circle(30, paint);
     actualCircle.setOnMouseClicked(e -> {
-      selectedCircle = actualCircle;
-      selectedCircle.setFill(Paint.valueOf("blue"));
-      game.selectPieceById(id);
-      System.out.println("Paint:" + paint.toString() + ", ID: " + id);
-    });
+      if (paint == paint.valueOf(player)) {
+        if (selectedCircle != null) {
+          selectedCircle.setFill(Paint.valueOf(player));
+          game.deselectPiece();
+        }
+        selectedCircle = actualCircle;
+        selectedCircle.setFill(Paint.valueOf("BLUE"));
+        game.selectPieceById(id);
+        List<Move> possibleMoves = game.getGameState().getSelectedPiece().getPossibleMoves();
+        System.out.println("Paint:" + paint.toString() + ", ID: " + id);
+        //for (Move move : possibleMoves.size()){
+
+        //}
+        System.out.println(possibleMoves.get(0).getNewCoordinate().toString());
+        System.out.println(possibleMoves.get(1).getNewCoordinate().toString());
+      }
+      });
     return actualCircle;
   }
 }
