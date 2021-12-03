@@ -11,6 +11,8 @@ import bauernschach.model.observable.Observer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -50,11 +52,13 @@ public class GameplayController implements Observer {
           System.out.println(currentPiece);
           int id = currentPiece.getId();
           if (currentPiece.getColor() == Color.BLACK) {
-            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("BLACK"), id),
-                actualColumn, actualRow);
+            Circle currentCircle = createNewClickableCircle(Paint.valueOf("BLACK"), id);
+            chessBoardGridPane.add(currentCircle, actualColumn, actualRow);
+            GridPane.setHalignment(currentCircle, HPos.CENTER);
           } else {
-            chessBoardGridPane.add(createNewClickableCircle(Paint.valueOf("WHITE"), id),
-                actualColumn, actualRow);
+            Circle currentCircle = createNewClickableCircle(Paint.valueOf("WHITE"), id);
+            chessBoardGridPane.add(currentCircle, actualColumn, actualRow);
+            GridPane.setHalignment(currentCircle, HPos.CENTER);
           }
         }
       }
@@ -74,13 +78,24 @@ public class GameplayController implements Observer {
         game.selectPieceById(id);
         List<Move> possibleMoves = game.getGameState().getSelectedPiece().getPossibleMoves();
         System.out.println("Paint:" + paint.toString() + ", ID: " + id);
-        //for (Move move : possibleMoves.size()){
-
-        //}
-        System.out.println(possibleMoves.get(0).getNewCoordinate().toString());
-        System.out.println(possibleMoves.get(1).getNewCoordinate().toString());
-      }
+        for (Move move : possibleMoves) {
+          System.out.println(move.getNewCoordinate().toString());
+          Circle targetPositionCircle = createNewTargetPositionCircle(id, move.getNewCoordinate().getRow(), move.getNewCoordinate().getColumn());
+          chessBoardGridPane.add(targetPositionCircle,
+              move.getNewCoordinate().getColumn(), move.getNewCoordinate().getRow());
+          GridPane.setHalignment(targetPositionCircle, HPos.CENTER);
+        }
+        }
       });
+    return actualCircle;
+  }
+
+  private Circle createNewTargetPositionCircle(int id, int row, int column) {
+    Circle actualCircle = new Circle(10, Paint.valueOf("green"));
+    actualCircle.setOnMouseClicked(e -> {
+          game.getGameState().getSelectedPiece().withNewPosition(Coordinate.of(row, column));
+          game.move(id);
+    });
     return actualCircle;
   }
 }
