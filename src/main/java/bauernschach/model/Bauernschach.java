@@ -133,13 +133,13 @@ public class Bauernschach implements Observable {
     }
     Move move = gameState.getSelectedPiece().getPossibleMoves().get(id);
     gameState.applyMove(move);
-    notifyAboutState(gameState);
+
     checkWinningConditions(move);
 
     if (gameState.isGameRunning()) {
       startNewRound();
     }
-
+    notifyAboutState(gameState);
     return OperationStatus.SUCCESS;
   }
 

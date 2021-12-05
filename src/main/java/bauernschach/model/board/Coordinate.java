@@ -58,6 +58,6 @@ public final class Coordinate implements Comparable<Coordinate> {
 
   @Override
   public String toString() {
-    return "Coordinate{" + "x=" + row + ", y=" + column + '}';
+    return "Coordinate{" + "row=" + row + ", column=" + column + '}';
   }
 }

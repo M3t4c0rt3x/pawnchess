@@ -71,48 +71,42 @@ public final class ChessPiece {
   }
 
   private void checkForwardMove(ChessBoard chessBoard) {
-    final int directionX = (color == Color.WHITE) ? 1 : -1;
-    final int newPositionY = coordinate.getColumn();
+    final int rowDirection = (color == Color.WHITE) ? 1 : -1;
+    final int column = coordinate.getColumn();
+    final int numberOfSteps;
+    final int startRow = chessBoard.getStartRowByColor(color);
+    if (coordinate.getRow() == startRow) {
+      numberOfSteps = 2;
+    } else {
+      numberOfSteps = 1;
+    }
 
-    for (int forwardStep = 1; forwardStep <= 2; ++forwardStep) {
-      if (forwardStep == 2) {
-        // check if the piece is at the starting row
-        final int startRow = chessBoard.getStartRowByColor(color);
-        if (coordinate.getRow() != startRow) {
-          continue;
-        }
-      }
-
-      final int newPositionX = coordinate.getRow() + directionX * forwardStep;
-      Coordinate newCoordinate = Coordinate.of(newPositionX, newPositionY);
+    for (int forwardStep = 1; forwardStep <= numberOfSteps; ++forwardStep) {
+      final int newRow = coordinate.getRow() + rowDirection * forwardStep;
+      Coordinate newCoordinate = Coordinate.of(newRow, column);
       // check if the new position is within bounds and not occupied
       if (chessBoard.isPositionWithinBounds(newCoordinate)
           && !chessBoard.hasPieceAt(newCoordinate)) {
         possibleMoves.add(Move.newForwardMove(newCoordinate));
       } else {
-        // if 1 step forward is not possible, the 2 steps is not possible either
+        // if 1 step forward is not possible, then more steps is not possible either
         break;
       }
     }
   }
 
   private void checkCaptureMove(ChessBoard chessBoard) {
-    final int directionX = (color == Color.WHITE) ? 1 : -1;
-    final int opponentPositionX = coordinate.getRow();
-    final int newPositionX = coordinate.getRow() + directionX;
+    final int rowDirection = (color == Color.WHITE) ? 1 : -1;
+    final int opponentRow = coordinate.getRow() + rowDirection;
 
     // check the possiblity of capture move in right/left directions
-    for (int directionY : List.of(-1, 1)) {
-      final int opponentPositionY = coordinate.getColumn() + directionY;
-      final int newPositionY = opponentPositionY;
-      final Coordinate opponentCoordinate = Coordinate.of(opponentPositionX, opponentPositionY);
-      final Coordinate newCoordinate = Coordinate.of(newPositionX, newPositionY);
+    for (int columnDirection : List.of(-1, 1)) {
+      final int opponentColumn = coordinate.getColumn() + columnDirection;
+      final Coordinate opponentCoordinate = Coordinate.of(opponentRow, opponentColumn);
       if (chessBoard.isPositionWithinBounds(opponentCoordinate)
-          && chessBoard.hasOpposingPieceAt(opponentCoordinate, color)
-          && chessBoard.isPositionWithinBounds(newCoordinate)
-          && !chessBoard.hasPieceAt(newCoordinate)) {
+          && chessBoard.hasOpposingPieceAt(opponentCoordinate, color)) {
         ChessPiece capturedPiece = chessBoard.getPieceAt(opponentCoordinate);
-        possibleMoves.add(Move.newCaptureMove(newCoordinate, capturedPiece));
+        possibleMoves.add(Move.newCaptureMove(opponentCoordinate, capturedPiece));
       }
     }
   }

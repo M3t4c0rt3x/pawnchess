@@ -351,15 +351,13 @@ public class Shell {
     } else if (printMode == PrintMode.MOVE_SELECT) {
       if (piece.equals(gameState.getSelectedPiece())) {
         return "*";
+      } else if (gameState.getSelectedPiece().getPossibleMoveCoordinates().contains(coord)) {
+        final int i = gameState.getSelectedPiece().getPossibleMoveCoordinates().indexOf(coord);
+        return String.valueOf(i);
       } else if (!piece.isNone()) {
         return pieceColorToString(piece.getColor());
       } else {
-        final int i = gameState.getSelectedPiece().getPossibleMoveCoordinates().indexOf(coord);
-        if (i != -1) {
-          return String.valueOf(i);
-        } else {
-          return ".";
-        }
+        return ".";
       }
     } else { // printMode == PrintMode.PLAIN
       if (piece.isNone()) {

@@ -93,12 +93,9 @@ public final class ChessBoard {
 
   /** Returns whether the given position is with the board's bounds. */
   boolean isPositionWithinBounds(Coordinate coordinate) {
-    final int positionX = coordinate.getRow();
-    final int positionY = coordinate.getColumn();
-    return (positionX >= 0)
-        && (positionX < getNumRows())
-        && (positionY >= 0)
-        && (positionY < getNumColumns());
+    final int row = coordinate.getRow();
+    final int column = coordinate.getColumn();
+    return (row >= 0) && (row < getNumRows()) && (column >= 0) && (column < getNumColumns());
   }
 
   /** Returns whether there is a piece placed at the given position. */
@@ -137,12 +134,11 @@ public final class ChessBoard {
 
   /** Applies the given move to the given chess piece. */
   public void applyMove(ChessPiece piece, Move move) {
-    movePiece(piece, move.getNewCoordinate());
-
     if (move.getMoveType() == Move.MoveType.CAPTURE) {
       ChessPiece capturedPiece = move.getCapturedPiece();
       removePiece(capturedPiece);
     }
+    movePiece(piece, move.getNewCoordinate());
   }
 
   /** Moves the piece to the new position. */
@@ -158,7 +154,8 @@ public final class ChessBoard {
   private void removePiece(ChessPiece piece) {
     assert !piece.isNone();
     setPieceAt(ChessPiece.NONE, piece.getCoordinate());
-    assert getPieceListByColor(piece.getColor()).remove(piece);
+    boolean wasRemoved = getPieceListByColor(piece.getColor()).remove(piece);
+    assert wasRemoved;
   }
 
   /** Update the possible moves of the chess pieces with the given color. */

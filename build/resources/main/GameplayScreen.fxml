@@ -96,7 +96,7 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Label text="Current Player: black" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <Label fx:id="currentPlayerLabel" text="Current Player: black" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <Button mnemonicParsing="false" text="Pass!" GridPane.halignment="CENTER" GridPane.rowIndex="7" />
                      </children>
                   </GridPane>
