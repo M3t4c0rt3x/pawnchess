@@ -170,7 +170,7 @@ public class Bauernschach implements Observable {
   }
 
   @Override
-  public void notifyAboutState(GameState newState) { observerSupport.notifyAboutState(newState);
-
+  public void notifyAboutState(GameState newState) {
+    observerSupport.notifyAboutState(newState);
   }
 }

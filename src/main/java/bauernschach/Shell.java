@@ -17,6 +17,7 @@ import java.util.Arrays;
  * the chess board.
  */
 public class Shell {
+
   enum PrintMode {
     PIECE_SELECT,
     MOVE_SELECT,
@@ -103,57 +104,39 @@ public class Shell {
       // Consider using enums instead (Effective Java Item 34)
       switch (command) {
         case PRINT_COMMAND:
-          {
-            handlePrintCommand(arguments);
-            break;
-          }
+          handlePrintCommand(arguments);
+          break;
         case NEWGAME_COMMAND:
-          {
-            handleNewGameCommand(arguments);
-            break;
-          }
+          handleNewGameCommand(arguments);
+          break;
         case SELECT_COMMAND:
-          {
-            handleSelectCommand(arguments);
-            break;
-          }
+          handleSelectCommand(arguments);
+          break;
         case DESELECT_COMMAND:
-          {
-            handleDeselectCommand(arguments);
-            break;
-          }
+          handleDeselectCommand(arguments);
+          break;
         case MOVE_COMMAND:
-          {
-            handleMoveCommand(arguments);
-            break;
-          }
+          handleMoveCommand(arguments);
+          break;
         case PASS_COMMAND:
-          {
-            handlePassCommand(arguments);
-            break;
-          }
+          handlePassCommand(arguments);
+          break;
         case QUIT_COMMAND:
-          {
-            if (arguments.length != 0) {
-              displayError(INVALID_ARGUMENTS_MESSAGE);
-              continue;
-            }
-            quit = true;
-            break;
+          if (arguments.length != 0) {
+            displayError(INVALID_ARGUMENTS_MESSAGE);
+            continue;
           }
+          quit = true;
+          break;
         case HELP_COMMAND:
-          {
-            if (arguments.length != 0) {
-              displayError(INVALID_ARGUMENTS_MESSAGE);
-              continue;
-            }
-            System.out.println(HELP_MESSAGE);
-            break;
+          if (arguments.length != 0) {
+            displayError(INVALID_ARGUMENTS_MESSAGE);
+            continue;
           }
+          System.out.println(HELP_MESSAGE);
+          break;
         default:
-          {
-            displayError(INVALID_COMMAND_MESSAGE);
-          }
+          displayError(INVALID_COMMAND_MESSAGE);
       }
     }
   }

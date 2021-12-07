@@ -7,5 +7,4 @@ public interface Observer {
 
   /** Notify this observer of an update in the game state. */
   void updateState(GameState state);
-
 }

@@ -10,5 +10,4 @@ public interface Observable {
   void unsubscribe(Observer obsv);
 
   void notifyAboutState(GameState newState);
-
 }

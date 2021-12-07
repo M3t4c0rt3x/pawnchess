@@ -30,7 +30,6 @@ public final class ObserverSupport implements Observable {
     notifyAll(o -> o.updateState(state));
   }
 
-
   private void notifyAll(Consumer<Observer> toCall) {
     for (Observer o : observers) {
       toCall.accept(o);
