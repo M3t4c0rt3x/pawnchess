@@ -22,30 +22,56 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-/** Controller for connecting the GameplayScreen with the model Bauernschach / Gamestate. */
+/**
+ * Controller for connecting the GameplayScreen with the model Bauernschach / Gamestate.
+ */
 public class GameplayController implements Observer {
 
   private Bauernschach game = new Bauernschach();
-  private Circle selectedCircle;
+  private Rectangle selectedRectangle;
   private String player;
+  private Image blackAvatar;
+  private Image whiteAvatar;
+  private Image selectedBlackAvatar;
+  private Image selectedWhiteAvatar;
 
-  @FXML private GridPane chessBoardGridPane;
+  @FXML
+  private GridPane chessBoardGridPane;
 
-  @FXML private Label currentPlayerLabel;
+  @FXML
+  private Label currentPlayerLabel;
 
-  @FXML private Button passButton;
+  @FXML
+  private Button passButton;
+
+  /**
+   * Start method of the GameplayController to set all things up (especially subsrcibe to the game,
+   *    load all images, rotate it to 'white down' for the first player and show the chessboard.
+   */
 
   @FXML
   void initialize() {
     game.subscribe(this);
     player = game.getGameState().getCurrentRound().toString();
     currentPlayerLabel.setText("current player: " + player.toUpperCase());
+
+    // try to load avatar images
+    try {
+      blackAvatar = new Image(getClass().getResource("/images/blackPawn.png").toString());
+      whiteAvatar = new Image(getClass().getResource("/images/whitePawn.png").toString());
+      selectedBlackAvatar = new Image(getClass().getResource("/images/selectedBlackPawn.png").toString());
+      selectedWhiteAvatar = new Image(getClass().getResource("/images/selectedWhitePawn.png").toString());
+    } catch (IllegalArgumentException e) {
+      System.err.println("Image not found.");
+    }
 
     // Rotation of the board, so that the currentPLayer always has the lower rows
     RotateTransition rt = new RotateTransition(Duration.millis(1000), chessBoardGridPane);
@@ -54,6 +80,13 @@ public class GameplayController implements Observer {
 
     displayCurrentBoard();
   }
+
+  /**
+   * Method checks if the game is won or not. When won it delegates to a follwing victory Screen, if
+   * not (game is ongoing) it refreshes the board (reload all pawns on their positions)
+   *
+   * @param state gamestate to represent the current state of the game
+   */
 
   @Override
   public void updateState(GameState state) {
@@ -87,8 +120,7 @@ public class GameplayController implements Observer {
   }
 
   /**
-   * Method, displaying all pieces at the board and calculating/displaying in sub-methods possible
-   * moves.
+   * Method to display all pawns at the board and delegating all further operations to sub-methods.
    */
   private void displayCurrentBoard() {
     final GameState gameState = game.getGameState();
@@ -113,13 +145,13 @@ public class GameplayController implements Observer {
         if (currentPiece.getColor() != null) {
           int id = currentPiece.getId();
           if (currentPiece.getColor() == Color.BLACK) {
-            Circle currentCircle =
-                createNewClickableCircle(Paint.valueOf("BLACK"), id, actualColumn, actualRow);
+            Rectangle currentCircle =
+                createNewClickablePawn(Paint.valueOf("BLACK"), id, actualColumn, actualRow);
             chessBoardGridPane.add(currentCircle, actualColumn, actualRow);
             GridPane.setHalignment(currentCircle, HPos.CENTER);
           } else {
-            Circle currentCircle =
-                createNewClickableCircle(Paint.valueOf("WHITE"), id, actualColumn, actualRow);
+            Rectangle currentCircle =
+                createNewClickablePawn(Paint.valueOf("WHITE"), id, actualColumn, actualRow);
             chessBoardGridPane.add(currentCircle, actualColumn, actualRow);
             GridPane.setHalignment(currentCircle, HPos.CENTER);
           }
@@ -128,87 +160,144 @@ public class GameplayController implements Observer {
     }
   }
 
-  private Circle createNewClickableCircle(Paint paint, int id, int pawnColumn, int pawnRow) {
-    Circle actualCircle = new Circle(30, paint);
-    actualCircle.setStroke(javafx.scene.paint.Color.BLACK);
+  /**
+   * Creates a single pawn with a given color and clickable to calculate and show possible moves
+   *
+   * @param paint is the color for this pawn
+   * @param id is the id of the pawn
+   * @param pawnColumn is the column position of this pawn on the board
+   * @param pawnRow is the row position of this pawn on the board
+   * @return Rectangle containing a pawn with a given color
+   */
 
-    actualCircle.setOnMouseEntered(
+  private Rectangle createNewClickablePawn(Paint paint, int id, int pawnColumn, int pawnRow) {
+    Rectangle actualRectangle;
+    if (blackAvatar != null && whiteAvatar != null) {
+      if (paint == Paint.valueOf("BLACK")) {
+        actualRectangle = new Rectangle(74,74);
+        actualRectangle.setFill(new ImagePattern(blackAvatar));
+      } else {
+        actualRectangle = new Rectangle(74,74);
+        actualRectangle.setFill(new ImagePattern(whiteAvatar));
+        actualRectangle.setRotate(180);
+      }
+    } else {
+      actualRectangle = new Rectangle(55, 55, paint);
+    }
+
+    actualRectangle.setOnMouseEntered(
         e -> {
           if (paint == Paint.valueOf(player)) {
-            selectedCircle = actualCircle;
-            selectedCircle.setFill(Paint.valueOf("BLUE"));
+            selectedRectangle = actualRectangle;
+            if (paint == Paint.valueOf("BLACK")) {
+              selectedRectangle.setFill(new ImagePattern(selectedBlackAvatar));
+            } else {
+              selectedRectangle.setFill(new ImagePattern(selectedWhiteAvatar));
+            }
           }
         });
 
-    actualCircle.setOnMouseExited(
+    actualRectangle.setOnMouseExited(
         (e -> {
-          selectedCircle = actualCircle;
-          selectedCircle.setFill(paint);
+          selectedRectangle = actualRectangle;
+          if (paint == Paint.valueOf("BLACK")) {
+            selectedRectangle.setFill(new ImagePattern(blackAvatar));
+          } else {
+            selectedRectangle.setFill(new ImagePattern(whiteAvatar));
+          }
         }));
 
-    actualCircle.setOnMouseClicked(
+    actualRectangle.setOnMouseClicked(
         e -> {
           if (paint == Paint.valueOf(player)) {
-            /* if there is a "previous" selected circle, first deselect it */
-            if (selectedCircle != null) {
-              selectedCircle.setFill(Paint.valueOf(player));
+            /* if there is a "previous" selected pawn, first deselect it */
+            if (selectedRectangle != null) {
+              if (paint == Paint.valueOf("BLACK")) {
+                selectedRectangle.setFill(new ImagePattern(blackAvatar));
+              } else {
+                selectedRectangle.setFill(new ImagePattern(whiteAvatar));
+              }
               game.deselectPiece();
             }
-            /* (otherwise) select a new one */
+            /* (otherwise) select a new pawn */
+            if (paint == Paint.valueOf("BLACK")) {
+              selectedRectangle.setFill(new ImagePattern(selectedBlackAvatar));
+            } else {
+              selectedRectangle.setFill(new ImagePattern(selectedWhiteAvatar));
+            }
             game.selectPieceById(id);
             List<Move> possibleMoves = game.getGameState().getSelectedPiece().getPossibleMoves();
             int moveCount = -1;
             for (Move move : possibleMoves) {
               moveCount++;
-              Circle targetPositionCircle =
-                  createNewTargetPositionCircle(
-                      moveCount,
-                      move.getNewCoordinate().getColumn(),
-                      move.getNewCoordinate().getRow(),
-                      pawnColumn,
-                      pawnRow);
+              Rectangle targetPositionCell = createNewTargetPositionCell(
+                  moveCount,
+                  move.getNewCoordinate().getColumn(),
+                  move.getNewCoordinate().getRow(),
+                  pawnColumn,
+                  pawnRow);
               chessBoardGridPane.add(
-                  targetPositionCircle,
+                  targetPositionCell,
                   move.getNewCoordinate().getColumn(),
                   move.getNewCoordinate().getRow());
-              GridPane.setHalignment(targetPositionCircle, HPos.CENTER);
+              GridPane.setHalignment(targetPositionCell, HPos.CENTER);
             }
           }
         });
-    return actualCircle;
+    return actualRectangle;
   }
 
-  // Special animated Method :P
-  private Circle createNewTargetPositionCircle(
+  /**
+   * Creates a single target cell in the chessboard where a pawn can move to and which is clickable.
+   *
+   * @param id is the move id, so that the model can do the right move
+   * @param targetColumn is the target column of the pawn
+   * @param targetRow is the target row of the pawn
+   * @param pawnColumn is the current column of the pawn
+   * @param pawnRow is the current row of the pawn
+   * @return Rectangle, which is clickable to proceed the move
+   */
+  private Rectangle createNewTargetPositionCell(
       int id, int targetColumn, int targetRow, int pawnColumn, int pawnRow) {
-    Circle actualCircle = new Circle(10, Paint.valueOf("GREEN"));
+    Rectangle actualRectangle = new Rectangle(75, 75);
+    actualRectangle.setFill(Paint.valueOf("TRANSPARENT"));
+    actualRectangle.setStroke(Paint.valueOf("GREEN"));
+    actualRectangle.setStrokeWidth(3.0);
 
-    actualCircle.setOnMouseEntered(
+    actualRectangle.setOnMouseEntered(
         e -> {
-          selectedCircle = actualCircle;
-          selectedCircle.setFill(Paint.valueOf("BLUE"));
+          selectedRectangle = actualRectangle;
+          selectedRectangle.setStroke(Paint.valueOf("RED"));
         });
 
-    actualCircle.setOnMouseExited(
+    actualRectangle.setOnMouseExited(
         (e -> {
-          selectedCircle = actualCircle;
-          selectedCircle.setFill(Paint.valueOf("GREEN"));
+          selectedRectangle = actualRectangle;
+          selectedRectangle.setStroke(Paint.valueOf("GREEN"));
         }));
 
-    actualCircle.setOnMouseClicked(
+    actualRectangle.setOnMouseClicked(
         e -> {
-          actualCircle.setRadius(0.0);
           animateAndMove(id, pawnColumn, pawnRow, targetColumn, targetRow);
 
-          // Rotation of the board, so that the currentPLayer always has the lower rows
+          // Rotate the board, so that the currentPLayer always has the lower rows
           RotateTransition rt = new RotateTransition(Duration.millis(250), chessBoardGridPane);
           rt.setDelay(Duration.millis(1000));
           rt.setByAngle(180);
           rt.play();
         });
-    return actualCircle;
+    return actualRectangle;
   }
 
+  /**
+   * Makes an animated move of a pawn to the selectedTarget cell.
+   *
+   * @param id is the move id, so the model can do the right move
+   * @param pawnColumn is the current column of the pawn
+   * @param pawnRow is the current column of the pawn
+   * @param targetColumn is the target column of the pawn
+   * @param targetRow is the target row of the pawn
+   */
   private void animateAndMove(
       int id, int pawnColumn, int pawnRow, int targetColumn, int targetRow) {
     double moveX = (targetColumn - pawnColumn) * 75;
